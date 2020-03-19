@@ -46,25 +46,63 @@
 
         <Button
                 android:id="@+id/open_file_button"
-                style="?android:textAppearanceSmall"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginTop="16dp"
                 android:text="@string/open"
                 android:textStyle="bold"
-                android:enabled="true"/>
+                android:enabled="true"
+                android:textSize="10sp"
+        />
 
         <Button
                 android:id="@+id/decode_button"
-                style="?android:textAppearanceSmall"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginTop="16dp"
                 android:text="@string/decode"
                 android:textStyle="bold"
-                android:enabled="false"/>
+                android:enabled="false"
+                android:textSize="10sp"
+        />
+
+        <Button
+                android:id="@+id/clear_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginTop="16dp"
+                android:text="@string/clear"
+                android:textStyle="bold"
+                android:enabled="false"
+                android:textSize="10sp"
+        />
+
+        <Button
+                android:id="@+id/save_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginTop="16dp"
+                android:text="@string/save"
+                android:textStyle="bold"
+                android:enabled="false"
+                android:textSize="10sp"
+        />
+
+        <Button
+                android:id="@+id/edit_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginTop="16dp"
+                android:text="@string/edit"
+                android:textStyle="bold"
+                android:enabled="false"
+                android:textSize="10sp"
+        />
     </LinearLayout>
 
     <ScrollView

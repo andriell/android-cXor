@@ -10,6 +10,9 @@
     <string name="error_field_required">This field is required</string>
     <string name="permission_rationale">"File system permissions are needed for reading encrypted files."</string>
     <string name="unreadable_file">Unreadable file</string>
+    <string name="save">Save</string>
+    <string name="clear">Clear</string>
+    <string name="edit">Edit</string>
 
     <string-array name="encoding_format">
         <item>Text</item>
