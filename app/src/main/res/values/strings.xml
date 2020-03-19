@@ -1,10 +1,19 @@
 <resources>
     <string name="app_name">cXor</string>
     <string name="prompt_password">Password</string>
+    <string name="prompt_encoding_format">Encoding format</string>
     <string name="decode">Decode</string>
-    <string name="action_sign_in_short">Sign in</string>
+    <string name="enter">Enter</string>
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
     <string name="permission_rationale">"File system permissions are needed for reading encrypted files."</string>
+
+    <string-array name="encoding_format">
+        <item>Text</item>
+        <item>Xor</item>
+        <item>Xor zipped</item>
+        <item>Xor2</item>
+        <item>Xor2 zipped</item>
+    </string-array>
 </resources>
