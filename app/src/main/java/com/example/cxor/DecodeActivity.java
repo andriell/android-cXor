@@ -15,7 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 
-public class LoginActivity extends AppCompatActivity  {
+public class DecodeActivity extends AppCompatActivity  {
 
     private static final int REQUEST_PERMISSIONS = 1;
 
@@ -27,7 +27,7 @@ public class LoginActivity extends AppCompatActivity  {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_decode);
         mayRequestContacts();
 
         mPasswordView = (EditText) findViewById(R.id.password);
