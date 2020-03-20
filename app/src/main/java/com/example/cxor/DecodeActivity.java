@@ -17,11 +17,12 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 
 import java.io.*;
 
 
-public class DecodeActivity extends AppCompatActivity  {
+public class DecodeActivity extends AppCompatActivity {
 
     private static final String TAG = "DECODE_ACTIVITY";
     private static final int REQUEST_PERMISSIONS = 1;
@@ -29,9 +30,15 @@ public class DecodeActivity extends AppCompatActivity  {
 
     // UI references.
     private EditText mPasswordView;
-    private EditText mDataView;
+    private Spinner mEncodeTypeSpinner;
+    private EditText mDataEdit;
     private Button mOpenFileButton;
     private Button mDecodeButton;
+    private Button mClearButton;
+    private Button mSaveButton;
+    private Button mEditButton;
+
+    private Uri fileUri = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,8 +47,9 @@ public class DecodeActivity extends AppCompatActivity  {
         mayRequestContacts();
 
         mPasswordView = (EditText) findViewById(R.id.password);
-        mDataView = (EditText) findViewById(R.id.data);
+        mEncodeTypeSpinner = (Spinner) findViewById(R.id.encode_type);
 
+        mDataEdit = (EditText) findViewById(R.id.data_edit);
         mOpenFileButton = (Button) findViewById(R.id.open_file_button);
         mOpenFileButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -54,10 +62,33 @@ public class DecodeActivity extends AppCompatActivity  {
         mDecodeButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                attemptDecode();
+                decodeAction();
             }
         });
 
+        mClearButton = (Button) findViewById(R.id.clear_button);
+        mClearButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clearAction();
+            }
+        });
+
+        mSaveButton = (Button) findViewById(R.id.save_button);
+        mSaveButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //attemptDecode();
+            }
+        });
+
+        mEditButton = (Button) findViewById(R.id.edit_button);
+        mEditButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //attemptDecode();
+            }
+        });
     }
 
 
@@ -127,27 +158,52 @@ public class DecodeActivity extends AppCompatActivity  {
     @Override
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
-
         try {
             if (requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-                Uri uri = null;
+                fileUri = null;
                 if (resultData != null) {
-                    uri = resultData.getData();
-                    Log.i(TAG, "Uri: " + uri.toString());
-
-                    InputStream inputStream = getContentResolver().openInputStream(uri);
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-                    StringBuilder stringBuilder = new StringBuilder();
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        stringBuilder.append(line);
-                    }
-                    mDataView.setText(stringBuilder.toString());
-                    mDecodeButton.setEnabled(true);
+                    fileUri = resultData.getData();
+                    Log.i(TAG, "Uri: " + fileUri.toString());
                 }
             }
+            updateUi();
         } catch (Exception e) {
             Log.e(TAG, "Error: ", e);
         }
+    }
+
+    void decodeAction() {
+        if (fileUri == null) {
+            return;
+        }
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(fileUri);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            StringBuilder stringBuilder = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                stringBuilder.append(line);
+            }
+            mDataEdit.setText(stringBuilder.toString());
+            updateUi();
+        } catch (Exception e) {
+            Log.e(TAG, "Error: ", e);
+        }
+    }
+
+    void clearAction() {
+        fileUri = null;
+        mPasswordView.setText("");
+        mEncodeTypeSpinner.setSelection(0, true);
+        mDataEdit.setText("");
+        updateUi();
+    }
+
+    void updateUi() {
+        mOpenFileButton.setEnabled(true);
+        mDecodeButton.setEnabled(fileUri != null);
+        mClearButton.setEnabled(true);
+        mSaveButton.setEnabled(fileUri != null);
+        mEditButton.setEnabled(fileUri != null);
     }
 }
