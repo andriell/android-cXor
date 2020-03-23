@@ -1,4 +1,4 @@
-package com.example.cxor.crypto;
+package com.andriell.cxor.crypto;
 
 public class CircularBytes {
     private byte[] bytes;

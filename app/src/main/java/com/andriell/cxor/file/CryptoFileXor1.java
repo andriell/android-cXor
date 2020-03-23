@@ -1,4 +1,4 @@
-package com.example.cxor.file;
+package com.andriell.cxor.file;
 
 public class CryptoFileXor1 extends CryptoFileXorN {
     private String[] extensions = {"xor"};

@@ -1,12 +1,13 @@
-package com.example.cxor.file;
+package com.andriell.cxor.file;
 
-import com.example.cxor.crypto.Constants;
-import com.example.cxor.crypto.Gzip;
+
+import com.andriell.cxor.crypto.Constants;
+import com.andriell.cxor.crypto.Gzip;
 
 import java.io.IOException;
 
-public class CryptoFileXor2Zipped extends CryptoFileXor2 {
-    private String[] extensions = {"xor2z"};
+public class CryptoFileXor1Zipped extends CryptoFileXor1 {
+    private String[] extensions = {"xorz"};
 
     public void save(byte[] data) throws IOException {
         checkDataSize(data);
@@ -26,7 +27,7 @@ public class CryptoFileXor2Zipped extends CryptoFileXor2 {
 
     @Override
     public String getDescription() {
-        return "Xor2 zipped";
+        return "Xor zipped";
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.example.cxor;
+package com.andriell.cxor;
 
 import org.junit.Test;
 

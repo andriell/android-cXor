@@ -1,4 +1,4 @@
-package com.example.cxor.crypto;
+package com.andriell.cxor.crypto;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

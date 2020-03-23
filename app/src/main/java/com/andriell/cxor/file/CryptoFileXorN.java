@@ -1,7 +1,7 @@
-package com.example.cxor.file;
+package com.andriell.cxor.file;
 
-import com.example.cxor.crypto.CircularBytes;
-import com.example.cxor.crypto.PasswordSequence;
+import com.andriell.cxor.crypto.CircularBytes;
+import com.andriell.cxor.crypto.PasswordSequence;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

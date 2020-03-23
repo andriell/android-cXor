@@ -1,4 +1,4 @@
-package com.example.cxor.crypto;
+package com.andriell.cxor.crypto;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;

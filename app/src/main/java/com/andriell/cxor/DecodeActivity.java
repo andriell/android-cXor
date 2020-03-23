@@ -1,4 +1,4 @@
-package com.example.cxor;
+package com.andriell.cxor;
 
 import android.Manifest;
 import android.annotation.TargetApi;
