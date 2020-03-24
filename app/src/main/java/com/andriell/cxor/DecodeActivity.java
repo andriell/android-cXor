@@ -100,6 +100,8 @@ public class DecodeActivity extends AppCompatActivity {
                 //attemptDecode();
             }
         });
+
+        updateUi();
     }
 
     @Override
@@ -178,7 +180,11 @@ public class DecodeActivity extends AppCompatActivity {
                 fileUri = null;
                 if (resultData != null) {
                     fileUri = resultData.getData();
-                    Log.i(TAG, "Uri: " + fileUri.toString());
+                    String fileName = fileUri == null ? "" : fileUri.toString();
+                    Log.i(TAG, "Uri: " + fileName);
+                    String fileExtension = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
+                    int i = CryptoFiles.getInstance().getCryptoFileIndex(fileExtension);
+                    mEncodeTypeSpinner.setSelection(i);
                 }
             }
             updateUi();
@@ -215,7 +221,7 @@ public class DecodeActivity extends AppCompatActivity {
         mOpenFileButton.setEnabled(true);
         mDecodeButton.setEnabled(fileUri != null);
         mClearButton.setEnabled(true);
-        mSaveButton.setEnabled(fileUri != null);
-        mEditButton.setEnabled(fileUri != null);
+        mSaveButton.setEnabled(false);
+        mEditButton.setEnabled(false);
     }
 }
