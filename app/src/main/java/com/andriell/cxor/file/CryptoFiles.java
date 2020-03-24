@@ -69,6 +69,11 @@ public class CryptoFiles {
         return default_index;
     }
 
+    public CryptoFileInterface getCryptoFile(String s) {
+        int i = getCryptoFileIndex(s);
+        return getCryptoFile(i);
+    }
+
     public CryptoFileInterface getCryptoFile(int i) {
         if (i < 0 || i >= cryptoFiles.length) {
             return null;

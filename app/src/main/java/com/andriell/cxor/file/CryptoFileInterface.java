@@ -1,12 +1,17 @@
 package com.andriell.cxor.file;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 public interface CryptoFileInterface {
-    public File getFile();
+    public InputStream getInputStream();
 
-    public void setFile(File file) throws IOException;
+    public OutputStream getOutputStream();
+
+    public void setInputStream(InputStream inputStream) throws IOException;
+
+    public void setOutputStream(OutputStream outputStream) throws IOException;
 
     public byte[] getPassword();
 

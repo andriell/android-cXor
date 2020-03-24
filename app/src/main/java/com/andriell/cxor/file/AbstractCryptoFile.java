@@ -11,25 +11,34 @@ import java.util.Random;
 
 public abstract class AbstractCryptoFile implements CryptoFileInterface {
     private static Random random;
-    private File file;
+
+    private InputStream inputStream;
+    private OutputStream outputStream;
+
     private byte[] password;
 
     static {
         random = new Random();
     }
 
-    public File getFile() {
-        return file;
+    @Override
+    public InputStream getInputStream() {
+        return inputStream;
     }
 
-    public void setFile(File file) throws IOException {
-        if (file == null) {
-            throw new IOException("The file is not loaded");
-        }
-        if (file.length() > Constants.MAX_SIZE) {
-            throw new IOException("The file is too large");
-        }
-        this.file = file;
+    @Override
+    public void setInputStream(InputStream inputStream) {
+        this.inputStream = inputStream;
+    }
+
+    @Override
+    public OutputStream getOutputStream() {
+        return outputStream;
+    }
+
+    @Override
+    public void setOutputStream(OutputStream outputStream) {
+        this.outputStream = outputStream;
     }
 
     public byte[] getPassword() {
@@ -47,17 +56,17 @@ public abstract class AbstractCryptoFile implements CryptoFileInterface {
     }
 
     BufferedOutputStream getBufferedOutputStream() throws IOException {
-        if (file == null) {
-            throw new IOException("The file is not set");
+        if (outputStream == null) {
+            throw new IOException("Output stream is not set");
         }
-        return new BufferedOutputStream(new FileOutputStream(file));
+        return new BufferedOutputStream(outputStream);
     }
 
     BufferedInputStream getBufferedInputStream() throws IOException {
-        if (file == null || !file.isFile()) {
-            throw new IOException("The file is not set");
+        if (inputStream == null) {
+            throw new IOException("Input stream is not set");
         }
-        return new BufferedInputStream(new FileInputStream(file));
+        return new BufferedInputStream(inputStream);
     }
 
     PasswordSequence getPasswordSequence() throws IOException {
@@ -71,10 +80,10 @@ public abstract class AbstractCryptoFile implements CryptoFileInterface {
     }
 
     int getFileSizeInt() throws IOException {
-        if (file == null || !file.isFile()) {
-            throw new IOException("The file is not set");
+        if (inputStream == null) {
+            throw new IOException("Input stream is not set");
         }
-        return (int) file.length();
+        return inputStream.available();
     }
 
 

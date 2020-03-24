@@ -15,9 +15,9 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Spinner;
+import android.widget.*;
+import com.andriell.cxor.file.CryptoFileInterface;
+import com.andriell.cxor.file.CryptoFiles;
 
 import java.io.*;
 
@@ -48,6 +48,11 @@ public class DecodeActivity extends AppCompatActivity {
 
         mPasswordView = (EditText) findViewById(R.id.password);
         mEncodeTypeSpinner = (Spinner) findViewById(R.id.encode_type);
+
+        String[] descriptions = CryptoFiles.getInstance().getDescriptions();
+        ArrayAdapter adapter = new ArrayAdapter(this,  android.R.layout.simple_spinner_item, descriptions);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mEncodeTypeSpinner.setAdapter(adapter);
 
         mDataEdit = (EditText) findViewById(R.id.data_edit);
         mOpenFileButton = (Button) findViewById(R.id.open_file_button);
@@ -178,13 +183,10 @@ public class DecodeActivity extends AppCompatActivity {
         }
         try {
             InputStream inputStream = getContentResolver().openInputStream(fileUri);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-            StringBuilder stringBuilder = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                stringBuilder.append(line);
-            }
-            mDataEdit.setText(stringBuilder.toString());
+            CryptoFileInterface cryptoFile = CryptoFiles.getInstance().getCryptoFile(mEncodeTypeSpinner.getSelectedItem().toString());
+            cryptoFile.setPassword(mPasswordView.getText().toString().getBytes());
+            cryptoFile.setInputStream(inputStream);
+            mDataEdit.setText(new String(cryptoFile.read()));
             updateUi();
         } catch (Exception e) {
             Log.e(TAG, "Error: ", e);
