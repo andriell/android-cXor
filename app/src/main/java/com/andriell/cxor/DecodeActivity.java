@@ -15,6 +15,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.*;
 import com.andriell.cxor.file.CryptoFileInterface;
 import com.andriell.cxor.file.CryptoFiles;
@@ -43,6 +45,10 @@ public class DecodeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE); //скроет заголовок
+        getSupportActionBar().hide(); // скрыть строку заголовка
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN); // Если фокус есть, скрыть клавиатуру до клика
+        // this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN); // Включить полноэкранный режим
         setContentView(R.layout.activity_decode);
         mayRequestContacts();
 
@@ -96,6 +102,10 @@ public class DecodeActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+    }
 
     private boolean mayRequestContacts() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
