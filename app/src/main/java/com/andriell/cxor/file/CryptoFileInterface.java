@@ -5,23 +5,25 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public interface CryptoFileInterface {
-    public InputStream getInputStream();
+    InputStream getInputStream();
 
-    public OutputStream getOutputStream();
+    OutputStream getOutputStream();
 
-    public void setInputStream(InputStream inputStream) throws IOException;
+    void setInputStream(InputStream inputStream);
 
-    public void setOutputStream(OutputStream outputStream) throws IOException;
+    void setOutputStream(OutputStream outputStream);
 
-    public byte[] getPassword();
+    byte[] getPassword();
 
-    public void setPassword(byte[] password);
+    void setPassword(byte[] password);
 
-    public void save(byte[] data) throws IOException;
+    void save(byte[] data) throws IOException;
 
-    public byte[] read() throws IOException;
+    byte[] read() throws IOException;
 
+    String getDescription();
 
-    public String getDescription();
-    public String[] getExtensions();
+    String getMimeType();
+
+    String[] getExtensions();
 }

@@ -103,4 +103,9 @@ public abstract class AbstractCryptoFile implements CryptoFileInterface {
         random.nextBytes(bytes);
         return new CircularBytes(bytes);
     }
+
+    @Override
+    public String getMimeType() {
+        return "application/x-binary";
+    }
 }

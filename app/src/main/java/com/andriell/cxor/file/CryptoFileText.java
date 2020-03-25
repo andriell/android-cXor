@@ -37,4 +37,9 @@ public class CryptoFileText extends AbstractCryptoFile {
     public String[] getExtensions() {
         return extensions;
     }
+
+    @Override
+    public String getMimeType() {
+        return "text/plain";
+    }
 }

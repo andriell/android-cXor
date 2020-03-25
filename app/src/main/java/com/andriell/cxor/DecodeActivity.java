@@ -2,7 +2,6 @@ package com.andriell.cxor;
 
 import android.Manifest;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -30,6 +29,7 @@ public class DecodeActivity extends AppCompatActivity {
     private static final String TAG = "DECODE_ACTIVITY";
     private static final int REQUEST_PERMISSIONS = 1;
     private static final int READ_REQUEST_CODE = 42;
+    private static final int SAVE_FOLDER_RESULT_CODE  = 43;
 
     // UI references.
     private EditText mPasswordView;
@@ -58,7 +58,7 @@ public class DecodeActivity extends AppCompatActivity {
         mEncodeTypeSpinner = (Spinner) findViewById(R.id.encode_type);
 
         String[] descriptions = CryptoFiles.getInstance().getDescriptions();
-        ArrayAdapter adapter = new ArrayAdapter(this,  android.R.layout.simple_spinner_item, descriptions);
+        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, descriptions);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mEncodeTypeSpinner.setAdapter(adapter);
 
@@ -67,7 +67,7 @@ public class DecodeActivity extends AppCompatActivity {
         mOpenFileButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                openFile();
+                openOpenFileDialog();
             }
         });
 
@@ -91,7 +91,11 @@ public class DecodeActivity extends AppCompatActivity {
         mSaveButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                //attemptDecode();
+                if (fileUri == null) {
+                    openSaveNewDialog();
+                } else {
+                    saveFile();
+                }
             }
         });
 
@@ -103,7 +107,7 @@ public class DecodeActivity extends AppCompatActivity {
             }
         });
 
-        mFileName = (TextView)  findViewById(R.id.file_name);
+        mFileName = (TextView) findViewById(R.id.file_name);
 
         mDataEdit = (EditText) findViewById(R.id.data_edit);
 
@@ -164,34 +168,58 @@ public class DecodeActivity extends AppCompatActivity {
         return password.length() > 4;
     }
 
+    private void saveFile() {
+        if (fileUri == null) {
+            Log.e(TAG, "Error: fileUri is null");
+            return;
+        }
+        try {
+            OutputStream outputStream = getContentResolver().openOutputStream(fileUri);
+            CryptoFileInterface cryptoFile = getCryptoFile(outputStream);
+            cryptoFile.save(mDataEdit.getText().toString().getBytes());
+        } catch (IOException e) {
+            Log.e(TAG, "Error: ", e);
+        }
+    }
+
+    /**
+     * Сохранить как
+     */
+    private void openSaveNewDialog() {
+        CryptoFileInterface cryptoFile = this.getCryptoFile();
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.putExtra(Intent.EXTRA_TITLE, "key." + cryptoFile.getExtensions()[0]);
+        intent.setType(cryptoFile.getMimeType());
+        startActivityForResult(intent, SAVE_FOLDER_RESULT_CODE);
+    }
+
     /**
      * Открыть файл
      */
-    private void openFile() {
-        // ACTION_OPEN_DOCUMENT - открыть документ на редатирование
-        // ACTION_GET_CONTENT - получить содержимое документа
+    private void openOpenFileDialog() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        // Фильтр, показывающий только те результаты, которые можно «открыть», например
-        // файл (в отличие от списка контактов или часовых поясов)
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
         startActivityForResult(intent, READ_REQUEST_CODE);
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode,
-                                 Intent resultData) {
+    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
+        fileUri = null;
+        if (resultCode != RESULT_OK || resultData == null || resultData.getData() == null) {
+            return;
+        }
         try {
-            if (requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-                fileUri = null;
-                if (resultData != null) {
-                    fileUri = resultData.getData();
-                    String fileUriString = fileUri == null ? "" : fileUri.toString();
-                    Log.i(TAG, "Uri: " + fileUriString);
-                    String fileExtension = fileUriString.substring(fileUriString.lastIndexOf('.') + 1).toLowerCase();
-                    int i = CryptoFiles.getInstance().getCryptoFileIndex(fileExtension);
-                    mEncodeTypeSpinner.setSelection(i);
-                }
+            fileUri = resultData.getData();
+            String fileUriString = fileUri == null ? "" : fileUri.toString();
+            Log.i(TAG, "Uri: " + fileUriString);
+            if (requestCode == READ_REQUEST_CODE ) { // Открытие файла
+                String fileExtension = fileUriString.substring(fileUriString.lastIndexOf('.') + 1).toLowerCase();
+                int i = CryptoFiles.getInstance().getCryptoFileIndex(fileExtension);
+                mEncodeTypeSpinner.setSelection(i);
+            } else if (requestCode == SAVE_FOLDER_RESULT_CODE) { // Сохранение файла
+                saveFile();
             }
             updateUi();
         } catch (Exception e) {
@@ -205,9 +233,7 @@ public class DecodeActivity extends AppCompatActivity {
         }
         try {
             InputStream inputStream = getContentResolver().openInputStream(fileUri);
-            CryptoFileInterface cryptoFile = CryptoFiles.getInstance().getCryptoFile(mEncodeTypeSpinner.getSelectedItem().toString());
-            cryptoFile.setPassword(mPasswordView.getText().toString().getBytes());
-            cryptoFile.setInputStream(inputStream);
+            CryptoFileInterface cryptoFile = getCryptoFile(inputStream);
             mDataEdit.setText(new String(cryptoFile.read()));
             updateUi();
         } catch (Exception e) {
@@ -228,11 +254,14 @@ public class DecodeActivity extends AppCompatActivity {
         mDecodeButton.setEnabled(fileUri != null);
         mClearButton.setEnabled(true);
         mSaveButton.setEnabled(true);
+        mSaveButton.setText(fileUri == null ? getString(R.string.save_new) : getString(R.string.save));
         mEditButton.setEnabled(false);
         try {
             if (fileUri != null) {
-                String fileUriString = fileUri.toString();
-                String fileName = URLDecoder.decode(fileUriString.substring(fileUriString.lastIndexOf('/') + 1), "UTF-8");
+                String fileName = fileUri.toString();
+                fileName = URLDecoder.decode(fileName, "UTF-8");
+                int i = fileName.lastIndexOf("/");
+                fileName = fileName.substring(i + 1);
                 mFileName.setText(fileName);
             } else {
                 mFileName.setText("");
@@ -241,5 +270,29 @@ public class DecodeActivity extends AppCompatActivity {
         } catch (UnsupportedEncodingException e) {
             Log.e(TAG, "Error: ", e);
         }
+    }
+
+    CryptoFileInterface getCryptoFile(OutputStream outputStream) {
+        return getCryptoFile(null, outputStream);
+    }
+
+    CryptoFileInterface getCryptoFile(InputStream inputStream) {
+        return getCryptoFile(inputStream, null);
+    }
+
+    CryptoFileInterface getCryptoFile() {
+        return getCryptoFile(null, null);
+    }
+
+    CryptoFileInterface getCryptoFile(InputStream inputStream, OutputStream outputStream) {
+        CryptoFileInterface cryptoFile = CryptoFiles.getInstance().getCryptoFile(mEncodeTypeSpinner.getSelectedItem().toString());
+        cryptoFile.setPassword(mPasswordView.getText().toString().getBytes());
+        if (inputStream != null) {
+            cryptoFile.setInputStream(inputStream);
+        }
+        if (outputStream != null) {
+            cryptoFile.setOutputStream(outputStream);
+        }
+        return cryptoFile;
     }
 }
