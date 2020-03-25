@@ -22,6 +22,7 @@ import com.andriell.cxor.file.CryptoFileInterface;
 import com.andriell.cxor.file.CryptoFiles;
 
 import java.io.*;
+import java.net.URLDecoder;
 
 
 public class DecodeActivity extends AppCompatActivity {
@@ -33,12 +34,13 @@ public class DecodeActivity extends AppCompatActivity {
     // UI references.
     private EditText mPasswordView;
     private Spinner mEncodeTypeSpinner;
-    private EditText mDataEdit;
     private Button mOpenFileButton;
     private Button mDecodeButton;
     private Button mClearButton;
     private Button mSaveButton;
     private Button mEditButton;
+    private TextView mFileName;
+    private EditText mDataEdit;
 
     private Uri fileUri = null;
 
@@ -60,7 +62,7 @@ public class DecodeActivity extends AppCompatActivity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mEncodeTypeSpinner.setAdapter(adapter);
 
-        mDataEdit = (EditText) findViewById(R.id.data_edit);
+
         mOpenFileButton = (Button) findViewById(R.id.open_file_button);
         mOpenFileButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -100,6 +102,10 @@ public class DecodeActivity extends AppCompatActivity {
                 //attemptDecode();
             }
         });
+
+        mFileName = (TextView)  findViewById(R.id.file_name);
+
+        mDataEdit = (EditText) findViewById(R.id.data_edit);
 
         updateUi();
     }
@@ -180,9 +186,9 @@ public class DecodeActivity extends AppCompatActivity {
                 fileUri = null;
                 if (resultData != null) {
                     fileUri = resultData.getData();
-                    String fileName = fileUri == null ? "" : fileUri.toString();
-                    Log.i(TAG, "Uri: " + fileName);
-                    String fileExtension = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
+                    String fileUriString = fileUri == null ? "" : fileUri.toString();
+                    Log.i(TAG, "Uri: " + fileUriString);
+                    String fileExtension = fileUriString.substring(fileUriString.lastIndexOf('.') + 1).toLowerCase();
                     int i = CryptoFiles.getInstance().getCryptoFileIndex(fileExtension);
                     mEncodeTypeSpinner.setSelection(i);
                 }
@@ -221,7 +227,19 @@ public class DecodeActivity extends AppCompatActivity {
         mOpenFileButton.setEnabled(true);
         mDecodeButton.setEnabled(fileUri != null);
         mClearButton.setEnabled(true);
-        mSaveButton.setEnabled(false);
+        mSaveButton.setEnabled(true);
         mEditButton.setEnabled(false);
+        try {
+            if (fileUri != null) {
+                String fileUriString = fileUri.toString();
+                String fileName = URLDecoder.decode(fileUriString.substring(fileUriString.lastIndexOf('/') + 1), "UTF-8");
+                mFileName.setText(fileName);
+            } else {
+                mFileName.setText("");
+            }
+
+        } catch (UnsupportedEncodingException e) {
+            Log.e(TAG, "Error: ", e);
+        }
     }
 }
