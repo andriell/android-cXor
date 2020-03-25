@@ -6,19 +6,20 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
+import android.view.*;
 import android.view.View.OnClickListener;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.*;
+import com.andriell.cxor.crypto.HiddenString;
 import com.andriell.cxor.file.CryptoFileInterface;
 import com.andriell.cxor.file.CryptoFiles;
+import com.andriell.cxor.ui.ShowDialogFragment;
 
 import java.io.*;
 import java.net.URLDecoder;
@@ -27,6 +28,8 @@ import java.net.URLDecoder;
 public class DecodeActivity extends AppCompatActivity {
 
     private static final String TAG = "DECODE_ACTIVITY";
+    private static final String STATE_HIDDEN_STRING = "STATE_HIDDEN_STRING";
+
     private static final int REQUEST_PERMISSIONS = 1;
     private static final int READ_REQUEST_CODE = 42;
     private static final int SAVE_FOLDER_RESULT_CODE  = 43;
@@ -43,6 +46,8 @@ public class DecodeActivity extends AppCompatActivity {
     private EditText mDataEdit;
 
     private Uri fileUri = null;
+    private HiddenString hiddenString = null;
+    private ShowDialogFragment showDialogFragment = new ShowDialogFragment();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +58,12 @@ public class DecodeActivity extends AppCompatActivity {
         // this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN); // Включить полноэкранный режим
         setContentView(R.layout.activity_decode);
         mayRequestContacts();
+
+        if (savedInstanceState != null) {
+            hiddenString = (HiddenString) savedInstanceState.getSerializable(STATE_HIDDEN_STRING);
+        }
+
+        showDialogFragment = new ShowDialogFragment();
 
         mPasswordView = (EditText) findViewById(R.id.password);
         mEncodeTypeSpinner = (Spinner) findViewById(R.id.encode_type);
@@ -110,6 +121,42 @@ public class DecodeActivity extends AppCompatActivity {
         mFileName = (TextView) findViewById(R.id.file_name);
 
         mDataEdit = (EditText) findViewById(R.id.data_edit);
+        ActionMode.Callback callback = new ActionMode.Callback() {
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                menu.clear();
+                MenuItem menuItem = menu.add("Show");
+                menuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                    public boolean onMenuItemClick(MenuItem item) {
+                        if (hiddenString != null) {
+                            int start = mDataEdit.getSelectionStart();
+                            int end = mDataEdit.getSelectionEnd();
+                            String password = hiddenString.copy(start, end - start);
+                            showDialogFragment.setMessage(password);
+                            showDialogFragment.show(getSupportFragmentManager(), "missiles");
+                        }
+                        return true;
+                    }
+                });
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                return false;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+
+            }
+        };
+        mDataEdit.setCustomSelectionActionModeCallback(callback);
 
         updateUi();
     }
@@ -117,6 +164,7 @@ public class DecodeActivity extends AppCompatActivity {
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putSerializable(STATE_HIDDEN_STRING, hiddenString);
     }
 
     private boolean mayRequestContacts() {
@@ -234,7 +282,8 @@ public class DecodeActivity extends AppCompatActivity {
         try {
             InputStream inputStream = getContentResolver().openInputStream(fileUri);
             CryptoFileInterface cryptoFile = getCryptoFile(inputStream);
-            mDataEdit.setText(new String(cryptoFile.read()));
+            hiddenString = new HiddenString(new String(cryptoFile.read()));
+            mDataEdit.setText(hiddenString.getStringHidden());
             updateUi();
         } catch (Exception e) {
             Log.e(TAG, "Error: ", e);
@@ -243,6 +292,7 @@ public class DecodeActivity extends AppCompatActivity {
 
     void clearAction() {
         fileUri = null;
+        hiddenString = null;
         mPasswordView.setText("");
         mEncodeTypeSpinner.setSelection(0, true);
         mDataEdit.setText("");
