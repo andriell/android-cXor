@@ -2,16 +2,16 @@ package com.andriell.cxor;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.*;
 import android.view.View.OnClickListener;
@@ -29,10 +29,11 @@ public class DecodeActivity extends AppCompatActivity {
 
     private static final String TAG = "DECODE_ACTIVITY";
     private static final String STATE_HIDDEN_STRING = "STATE_HIDDEN_STRING";
+    private static final String STATE_IS_HIDE_MODE = "STATE_IS_HIDE_MODE";
 
     private static final int REQUEST_PERMISSIONS = 1;
     private static final int READ_REQUEST_CODE = 42;
-    private static final int SAVE_FOLDER_RESULT_CODE  = 43;
+    private static final int SAVE_FOLDER_RESULT_CODE = 43;
 
     // UI references.
     private EditText mPasswordView;
@@ -45,9 +46,12 @@ public class DecodeActivity extends AppCompatActivity {
     private TextView mFileName;
     private EditText mDataEdit;
 
+    private HiddenString stateHiddenString = null;
+    private boolean stateHideMode = true;
+
     private Uri fileUri = null;
-    private HiddenString hiddenString = null;
-    private ShowDialogFragment showDialogFragment = new ShowDialogFragment();
+    private ShowDialogFragment showDialogFragment;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,9 +63,7 @@ public class DecodeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_decode);
         mayRequestContacts();
 
-        if (savedInstanceState != null) {
-            hiddenString = (HiddenString) savedInstanceState.getSerializable(STATE_HIDDEN_STRING);
-        }
+        restoreState(savedInstanceState);
 
         showDialogFragment = new ShowDialogFragment();
 
@@ -107,6 +109,7 @@ public class DecodeActivity extends AppCompatActivity {
                 } else {
                     saveFile();
                 }
+                updateUi();
             }
         });
 
@@ -114,27 +117,57 @@ public class DecodeActivity extends AppCompatActivity {
         mEditButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                //attemptDecode();
+                stateHideMode = !stateHideMode;
+                if (stateHideMode) {
+                    stateHiddenString.setData(mDataEdit.getText().toString());
+                    mDataEdit.setText(stateHiddenString.getStringHidden());
+                } else {
+                    mDataEdit.setText(stateHiddenString.getString());
+                }
+                updateUi();
             }
         });
 
         mFileName = (TextView) findViewById(R.id.file_name);
 
         mDataEdit = (EditText) findViewById(R.id.data_edit);
-        ActionMode.Callback callback = new ActionMode.Callback() {
+        mDataEdit.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                MenuItem menuItem;
                 menu.clear();
-                MenuItem menuItem = menu.add("Show");
+
+                menuItem = menu.add(getString(R.string.show));
                 menuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                     public boolean onMenuItemClick(MenuItem item) {
-                        if (hiddenString != null) {
-                            int start = mDataEdit.getSelectionStart();
-                            int end = mDataEdit.getSelectionEnd();
-                            String password = hiddenString.copy(start, end - start);
+                        if (stateHiddenString != null) {
+                            String password = getSelectedText();
                             showDialogFragment.setMessage(password);
                             showDialogFragment.show(getSupportFragmentManager(), "missiles");
                         }
+                        return true;
+                    }
+                });
+                menuItem = menu.add(getString(android.R.string.copy));
+                menuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                    public boolean onMenuItemClick(MenuItem item) {
+                        ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                        String password = getSelectedText();
+                        ClipData clip = ClipData.newPlainText("label", password);
+                        clipboard.setPrimaryClip(clip);
+                        return true;
+                    }
+                });
+                menuItem = menu.add(getString(R.string.share));
+                menuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                    public boolean onMenuItemClick(MenuItem item) {
+                        Intent sendIntent = new Intent();
+                        sendIntent.setAction(Intent.ACTION_SEND);
+                        String password = getSelectedText();
+                        sendIntent.putExtra(Intent.EXTRA_TEXT, password);
+                        sendIntent.setType("text/plain");
+                        Intent shareIntent = Intent.createChooser(sendIntent, null);
+                        startActivity(shareIntent);
                         return true;
                     }
                 });
@@ -155,16 +188,36 @@ public class DecodeActivity extends AppCompatActivity {
             public void onDestroyActionMode(ActionMode mode) {
 
             }
-        };
-        mDataEdit.setCustomSelectionActionModeCallback(callback);
+
+            private String getSelectedText() {
+                int start = mDataEdit.getSelectionStart();
+                int end = mDataEdit.getSelectionEnd();
+                String password = stateHiddenString.copy(start, end - start);
+                return password;
+            }
+        });
 
         updateUi();
+    }
+
+    private void restoreState(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            stateHiddenString = (HiddenString) savedInstanceState.getSerializable(STATE_HIDDEN_STRING);
+            stateHideMode = savedInstanceState.getBoolean(STATE_IS_HIDE_MODE);
+        }
     }
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-        savedInstanceState.putSerializable(STATE_HIDDEN_STRING, hiddenString);
+        savedInstanceState.putSerializable(STATE_HIDDEN_STRING, stateHiddenString);
+        savedInstanceState.putBoolean(STATE_IS_HIDE_MODE, stateHideMode);
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        restoreState(savedInstanceState);
     }
 
     private boolean mayRequestContacts() {
@@ -200,20 +253,6 @@ public class DecodeActivity extends AppCompatActivity {
                 mayRequestContacts();
             }
         }
-    }
-
-    private void attemptDecode() {
-        mPasswordView.setError(null);
-        String password = mPasswordView.getText().toString();
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            mPasswordView.requestFocus();
-            return;
-        }
-    }
-
-    private boolean isPasswordValid(String password) {
-        return password.length() > 4;
     }
 
     private void saveFile() {
@@ -262,7 +301,7 @@ public class DecodeActivity extends AppCompatActivity {
             fileUri = resultData.getData();
             String fileUriString = fileUri == null ? "" : fileUri.toString();
             Log.i(TAG, "Uri: " + fileUriString);
-            if (requestCode == READ_REQUEST_CODE ) { // Открытие файла
+            if (requestCode == READ_REQUEST_CODE) { // Открытие файла
                 String fileExtension = fileUriString.substring(fileUriString.lastIndexOf('.') + 1).toLowerCase();
                 int i = CryptoFiles.getInstance().getCryptoFileIndex(fileExtension);
                 mEncodeTypeSpinner.setSelection(i);
@@ -275,37 +314,36 @@ public class DecodeActivity extends AppCompatActivity {
         }
     }
 
-    void decodeAction() {
+    private void decodeAction() {
         if (fileUri == null) {
             return;
         }
         try {
             InputStream inputStream = getContentResolver().openInputStream(fileUri);
             CryptoFileInterface cryptoFile = getCryptoFile(inputStream);
-            hiddenString = new HiddenString(new String(cryptoFile.read()));
-            mDataEdit.setText(hiddenString.getStringHidden());
+            stateHiddenString = new HiddenString(new String(cryptoFile.read()));
+            mDataEdit.setText(stateHiddenString.getStringHidden());
             updateUi();
         } catch (Exception e) {
             Log.e(TAG, "Error: ", e);
         }
     }
 
-    void clearAction() {
+    private void clearAction() {
         fileUri = null;
-        hiddenString = null;
+        stateHiddenString = null;
+        stateHideMode = true;
         mPasswordView.setText("");
         mEncodeTypeSpinner.setSelection(0, true);
         mDataEdit.setText("");
         updateUi();
     }
 
-    void updateUi() {
-        mOpenFileButton.setEnabled(true);
+    private void updateUi() {
         mDecodeButton.setEnabled(fileUri != null);
-        mClearButton.setEnabled(true);
-        mSaveButton.setEnabled(true);
-        mSaveButton.setText(fileUri == null ? getString(R.string._new) : getString(R.string.save));
-        mEditButton.setEnabled(false);
+        mSaveButton.setText(fileUri == null ? getString(R.string.s_new) : getString(R.string.save));
+        mEditButton.setText(stateHideMode ? getString(R.string.edit) : getString(R.string.hide));
+
         try {
             if (fileUri != null) {
                 String fileName = fileUri.toString();

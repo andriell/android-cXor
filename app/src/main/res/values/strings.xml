@@ -11,9 +11,12 @@
     <string name="permission_rationale">"File system permissions are needed for reading encrypted files."</string>
     <string name="unreadable_file">Unreadable file</string>
     <string name="save">Save</string>
-    <string name="_new">New</string>
+    <string name="s_new">New</string>
     <string name="clear">Clear</string>
     <string name="edit">Edit</string>
+    <string name="hide">Hide</string>
+    <string name="show">Show</string>
+    <string name="share">Share</string>
 
     <string-array name="encoding_format">
         <item>Text</item>

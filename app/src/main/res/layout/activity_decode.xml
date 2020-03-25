@@ -52,7 +52,6 @@
                 android:layout_marginTop="16dp"
                 android:text="@string/open"
                 android:textStyle="bold"
-                android:enabled="true"
                 android:textSize="10sp"
         />
 
@@ -64,7 +63,6 @@
                 android:layout_marginTop="16dp"
                 android:text="@string/decode"
                 android:textStyle="bold"
-                android:enabled="false"
                 android:textSize="10sp"
         />
 
@@ -76,7 +74,6 @@
                 android:layout_marginTop="16dp"
                 android:text="@string/clear"
                 android:textStyle="bold"
-                android:enabled="false"
                 android:textSize="10sp"
         />
 
@@ -88,7 +85,6 @@
                 android:layout_marginTop="16dp"
                 android:text="@string/save"
                 android:textStyle="bold"
-                android:enabled="false"
                 android:textSize="10sp"
         />
 
@@ -100,7 +96,6 @@
                 android:layout_marginTop="16dp"
                 android:text="@string/edit"
                 android:textStyle="bold"
-                android:enabled="false"
                 android:textSize="10sp"
         />
     </LinearLayout>
