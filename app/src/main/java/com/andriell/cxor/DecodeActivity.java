@@ -254,7 +254,7 @@ public class DecodeActivity extends AppCompatActivity {
         mDecodeButton.setEnabled(fileUri != null);
         mClearButton.setEnabled(true);
         mSaveButton.setEnabled(true);
-        mSaveButton.setText(fileUri == null ? getString(R.string.save_new) : getString(R.string.save));
+        mSaveButton.setText(fileUri == null ? getString(R.string._new) : getString(R.string.save));
         mEditButton.setEnabled(false);
         try {
             if (fileUri != null) {
