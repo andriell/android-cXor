@@ -44,7 +44,7 @@ public class DecodeActivity extends AppCompatActivity {
     private Button mSaveButton;
     private Button mEditButton;
     private TextView mFileName;
-    private EditText mDataEdit;
+    private TextView mDataEdit;
 
     private HiddenString stateHiddenString = null;
     private boolean stateHideMode = true;
@@ -120,7 +120,7 @@ public class DecodeActivity extends AppCompatActivity {
                 stateHideMode = !stateHideMode;
                 if (stateHideMode) {
                     stateHiddenString.setData(mDataEdit.getText().toString());
-                    mDataEdit.setText(stateHiddenString.getStringHidden());
+                    mDataEdit.setText(stateHiddenString.getSpannableString());
                 } else {
                     mDataEdit.setText(stateHiddenString.getString());
                 }
@@ -130,8 +130,8 @@ public class DecodeActivity extends AppCompatActivity {
 
         mFileName = (TextView) findViewById(R.id.file_name);
 
-        mDataEdit = (EditText) findViewById(R.id.data_edit);
-        mDataEdit.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
+        mDataEdit = (TextView) findViewById(R.id.data_edit);
+        ActionMode.Callback actionModeCallback = new ActionMode.Callback() {
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
                 MenuItem menuItem;
@@ -171,7 +171,7 @@ public class DecodeActivity extends AppCompatActivity {
                         return true;
                     }
                 });
-                return true;
+                return false;
             }
 
             @Override
@@ -195,7 +195,11 @@ public class DecodeActivity extends AppCompatActivity {
                 String password = stateHiddenString.copy(start, end - start);
                 return password;
             }
-        });
+        };
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            mDataEdit.setCustomInsertionActionModeCallback(actionModeCallback);
+        }
+        mDataEdit.setCustomSelectionActionModeCallback(actionModeCallback);
 
         updateUi();
     }
@@ -322,7 +326,7 @@ public class DecodeActivity extends AppCompatActivity {
             InputStream inputStream = getContentResolver().openInputStream(fileUri);
             CryptoFileInterface cryptoFile = getCryptoFile(inputStream);
             stateHiddenString = new HiddenString(new String(cryptoFile.read()));
-            mDataEdit.setText(stateHiddenString.getStringHidden());
+            mDataEdit.setText(stateHiddenString.getSpannableString());
             updateUi();
         } catch (Exception e) {
             Log.e(TAG, "Error: ", e);
