@@ -116,15 +116,15 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-        <TextView
+        <EditText
                 android:id="@+id/data_edit"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:imeActionLabel="@string/enter"
                 android:imeOptions="actionUnspecified"
                 android:inputType="textMultiLine"
-                android:gravity="top"
-        />
+                android:singleLine="false"
+                android:gravity="top"/>
     </ScrollView>
 
 

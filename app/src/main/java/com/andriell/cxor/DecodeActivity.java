@@ -2,6 +2,7 @@ package com.andriell.cxor;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -14,10 +15,13 @@ import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextPaint;
+import android.text.method.ArrowKeyMovementMethod;
+import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.util.Log;
 import android.view.*;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.andriell.cxor.crypto.HiddenString;
 import com.andriell.cxor.file.CryptoFileInterface;
@@ -47,7 +51,7 @@ public class DecodeActivity extends AppCompatActivity {
     private Button mSaveButton;
     private Button mEditButton;
     private TextView mFileName;
-    private TextView mDataEdit;
+    private EditText mDataEdit;
 
     private HiddenString stateHiddenString = null;
     private boolean stateHideMode = true;
@@ -84,6 +88,7 @@ public class DecodeActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 openOpenFileDialog();
+                hideKeyboardFrom(mPasswordView);
             }
         });
 
@@ -92,6 +97,7 @@ public class DecodeActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 decodeAction();
+                hideKeyboardFrom(mPasswordView);
             }
         });
 
@@ -100,6 +106,7 @@ public class DecodeActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 clearAction();
+                hideKeyboardFrom(mPasswordView);
             }
         });
 
@@ -112,6 +119,7 @@ public class DecodeActivity extends AppCompatActivity {
                 } else {
                     saveFile();
                 }
+                hideKeyboardFrom(mPasswordView);
                 updateUi();
             }
         });
@@ -127,13 +135,14 @@ public class DecodeActivity extends AppCompatActivity {
                 } else {
                     mDataEdit.setText(stateHiddenString.getString());
                 }
+                hideKeyboardFrom(mPasswordView);
                 updateUi();
             }
         });
 
         mFileName = (TextView) findViewById(R.id.file_name);
 
-        mDataEdit = (TextView) findViewById(R.id.data_edit);
+        mDataEdit = (EditText) findViewById(R.id.data_edit);
 
         updateUi();
     }
@@ -173,6 +182,9 @@ public class DecodeActivity extends AppCompatActivity {
         if (savedInstanceState != null) {
             stateHiddenString = (HiddenString) savedInstanceState.getSerializable(STATE_HIDDEN_STRING);
             stateHideMode = savedInstanceState.getBoolean(STATE_IS_HIDE_MODE);
+        }
+        if (stateHiddenString == null) {
+            stateHiddenString = new HiddenString();
         }
     }
 
@@ -290,7 +302,7 @@ public class DecodeActivity extends AppCompatActivity {
         try {
             InputStream inputStream = getContentResolver().openInputStream(fileUri);
             CryptoFileInterface cryptoFile = getCryptoFile(inputStream);
-            stateHiddenString = new HiddenString(new String(cryptoFile.read()));
+            stateHiddenString.setData(new String(cryptoFile.read()));
             mDataEdit.setText(getSpannableString());
             updateUi();
         } catch (Exception e) {
@@ -300,7 +312,7 @@ public class DecodeActivity extends AppCompatActivity {
 
     private void clearAction() {
         fileUri = null;
-        stateHiddenString = null;
+        stateHiddenString = new HiddenString();
         stateHideMode = true;
         mPasswordView.setText("");
         mEncodeTypeSpinner.setSelection(0, true);
@@ -308,10 +320,20 @@ public class DecodeActivity extends AppCompatActivity {
         updateUi();
     }
 
+    private void hideKeyboardFrom(View view) {
+        InputMethodManager imm = (InputMethodManager) this.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+    
     private void updateUi() {
         mDecodeButton.setEnabled(fileUri != null);
+        mSaveButton.setEnabled(!(fileUri != null && stateHideMode));
         mSaveButton.setText(fileUri == null ? getString(R.string.s_new) : getString(R.string.save));
         mEditButton.setText(stateHideMode ? getString(R.string.edit) : getString(R.string.hide));
+        mDataEdit.setMovementMethod(stateHideMode ? LinkMovementMethod.getInstance() : ArrowKeyMovementMethod.getInstance());
+        mDataEdit.setFocusableInTouchMode(!stateHideMode);
+        mDataEdit.setFocusable(!stateHideMode);
+        mDataEdit.setBackgroundColor(stateHideMode ? Color.argb(16, 128, 128, 128) : Color.TRANSPARENT);
 
         try {
             if (fileUri != null) {
