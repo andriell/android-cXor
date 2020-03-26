@@ -2,16 +2,19 @@ package com.andriell.cxor;
 
 import android.Manifest;
 import android.annotation.TargetApi;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextPaint;
+import android.text.style.ClickableSpan;
 import android.util.Log;
 import android.view.*;
 import android.view.View.OnClickListener;
@@ -120,7 +123,7 @@ public class DecodeActivity extends AppCompatActivity {
                 stateHideMode = !stateHideMode;
                 if (stateHideMode) {
                     stateHiddenString.setData(mDataEdit.getText().toString());
-                    mDataEdit.setText(stateHiddenString.getSpannableString());
+                    mDataEdit.setText(getSpannableString());
                 } else {
                     mDataEdit.setText(stateHiddenString.getString());
                 }
@@ -131,77 +134,39 @@ public class DecodeActivity extends AppCompatActivity {
         mFileName = (TextView) findViewById(R.id.file_name);
 
         mDataEdit = (TextView) findViewById(R.id.data_edit);
-        ActionMode.Callback actionModeCallback = new ActionMode.Callback() {
-            @Override
-            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                MenuItem menuItem;
-                menu.clear();
-
-                menuItem = menu.add(getString(R.string.show));
-                menuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                    public boolean onMenuItemClick(MenuItem item) {
-                        if (stateHiddenString != null) {
-                            String password = getSelectedText();
-                            showDialogFragment.setMessage(password);
-                            showDialogFragment.show(getSupportFragmentManager(), "missiles");
-                        }
-                        return true;
-                    }
-                });
-                menuItem = menu.add(getString(android.R.string.copy));
-                menuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                    public boolean onMenuItemClick(MenuItem item) {
-                        ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                        String password = getSelectedText();
-                        ClipData clip = ClipData.newPlainText("label", password);
-                        clipboard.setPrimaryClip(clip);
-                        return true;
-                    }
-                });
-                menuItem = menu.add(getString(R.string.share));
-                menuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                    public boolean onMenuItemClick(MenuItem item) {
-                        Intent sendIntent = new Intent();
-                        sendIntent.setAction(Intent.ACTION_SEND);
-                        String password = getSelectedText();
-                        sendIntent.putExtra(Intent.EXTRA_TEXT, password);
-                        sendIntent.setType("text/plain");
-                        Intent shareIntent = Intent.createChooser(sendIntent, null);
-                        startActivity(shareIntent);
-                        return true;
-                    }
-                });
-                return false;
-            }
-
-            @Override
-            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-                return false;
-            }
-
-            @Override
-            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                return false;
-            }
-
-            @Override
-            public void onDestroyActionMode(ActionMode mode) {
-
-            }
-
-            private String getSelectedText() {
-                int start = mDataEdit.getSelectionStart();
-                int end = mDataEdit.getSelectionEnd();
-                String password = stateHiddenString.copy(start, end - start);
-                return password;
-            }
-        };
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            mDataEdit.setCustomInsertionActionModeCallback(actionModeCallback);
-        }
-        mDataEdit.setCustomSelectionActionModeCallback(actionModeCallback);
 
         updateUi();
+    }
+
+    public SpannableString getSpannableString() {
+        if (stateHiddenString == null) {
+            return new SpannableString("");
+        }
+        int[] groups = stateHiddenString.getGroups();
+        SpannableString ss = new SpannableString(stateHiddenString.getStringHidden());
+
+        for (int i = 0; i < groups.length; i += 2) {
+            ClickableSpan clickableSpan = new ClickableSpan() {
+                @Override
+                public void onClick(View widget) {
+                    int start = mDataEdit.getSelectionStart();
+                    int end = mDataEdit.getSelectionEnd();
+                    String password = stateHiddenString.copy(start, end - start);
+                    showDialogFragment.setMessage(password);
+                    showDialogFragment.show(getSupportFragmentManager(), "missiles");
+                }
+
+                @Override
+                public void updateDrawState(TextPaint ds) {
+                    super.updateDrawState(ds);
+                    ds.setColor(Color.BLUE);
+                    ds.setUnderlineText(false);
+                }
+            };
+            ss.setSpan(clickableSpan, groups[i], groups[i+1], Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+
+        return ss;
     }
 
     private void restoreState(Bundle savedInstanceState) {
@@ -326,7 +291,7 @@ public class DecodeActivity extends AppCompatActivity {
             InputStream inputStream = getContentResolver().openInputStream(fileUri);
             CryptoFileInterface cryptoFile = getCryptoFile(inputStream);
             stateHiddenString = new HiddenString(new String(cryptoFile.read()));
-            mDataEdit.setText(stateHiddenString.getSpannableString());
+            mDataEdit.setText(getSpannableString());
             updateUi();
         } catch (Exception e) {
             Log.e(TAG, "Error: ", e);

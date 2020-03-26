@@ -1,12 +1,5 @@
 package com.andriell.cxor.crypto;
 
-import android.graphics.Color;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.TextPaint;
-import android.text.style.ClickableSpan;
-import android.view.View;
-
 import java.io.Serializable;
 
 public class HiddenString implements Serializable {
@@ -129,29 +122,6 @@ public class HiddenString implements Serializable {
 
     public int[] getGroups() {
         return groups;
-    }
-
-    public SpannableString getSpannableString() {
-        SpannableString ss = new SpannableString(getStringHidden());
-
-        for (int i = 0; i < groups.length; i += 2) {
-            ClickableSpan clickableSpan = new ClickableSpan() {
-                @Override
-                public void onClick(View widget) {
-
-                }
-
-                @Override
-                public void updateDrawState(TextPaint ds) {
-                    super.updateDrawState(ds);
-                    ds.setColor(Color.BLUE);
-                    ds.setUnderlineText(false);
-                }
-            };
-            ss.setSpan(clickableSpan, groups[i], groups[i+1], Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        }
-
-        return ss;
     }
 
     class CharGroup {
