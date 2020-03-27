@@ -15,7 +15,8 @@
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:gravity="bottom">
 
         <EditText
                 android:id="@+id/password"
@@ -38,6 +39,16 @@
                  android:entries="@array/encoding_format"
         />
 
+        <Button
+                android:id="@+id/decode_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginTop="16dp"
+                android:text="@string/decode"
+                android:textStyle="bold"
+                android:textSize="10sp"/>
+
     </LinearLayout>
     <LinearLayout
             android:layout_width="match_parent"
@@ -51,17 +62,6 @@
                 android:layout_weight="1"
                 android:layout_marginTop="16dp"
                 android:text="@string/open"
-                android:textStyle="bold"
-                android:textSize="10sp"
-        />
-
-        <Button
-                android:id="@+id/decode_button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginTop="16dp"
-                android:text="@string/decode"
                 android:textStyle="bold"
                 android:textSize="10sp"
         />

@@ -1,14 +1,14 @@
 <resources>
     <string name="app_name">cXor</string>
     <string name="prompt_password">Пароль</string>
-    <string name="decode">Декодировать</string>
-    <string name="open">Открыть</string>
+    <string name="decode">Декод.</string>
+    <string name="open">Откр.</string>
     <string name="enter">Enter</string>
     <string name="permission_rationale">"Разрешения файловой системы необходимы для чтения зашифрованных файлов."</string>
-    <string name="save">Сохранить</string>
+    <string name="save">Сохр.</string>
     <string name="s_new">Новый</string>
-    <string name="clear">Очистить</string>
-    <string name="edit">Редактировать</string>
+    <string name="clear">Очист.</string>
+    <string name="edit">Ред.</string>
     <string name="hide">Скрыть</string>
     <string name="show">Показать</string>
     <string name="share">Поделиться</string>
