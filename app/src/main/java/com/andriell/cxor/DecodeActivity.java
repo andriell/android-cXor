@@ -67,7 +67,7 @@ public class DecodeActivity extends AppCompatActivity {
         getSupportActionBar().hide(); // скрыть строку заголовка
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN); // Если фокус есть, скрыть клавиатуру до клика
         // this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN); // Включить полноэкранный режим
-        setContentView(R.layout.activity_decode);
+        setContentView(R.layout.activity_main);
         mayRequestContacts();
 
         restoreState(savedInstanceState);
