@@ -43,6 +43,8 @@ public class DecodeActivity extends AppCompatActivity {
     private static final int READ_REQUEST_CODE = 42;
     private static final int SAVE_FOLDER_RESULT_CODE = 43;
 
+    private static final int DEFAULT_ENCODE_INDEX = 3;
+
     // UI references.
     private EditText mPasswordView;
     private Spinner mEncodeTypeSpinner;
@@ -82,6 +84,7 @@ public class DecodeActivity extends AppCompatActivity {
         ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, descriptions);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mEncodeTypeSpinner.setAdapter(adapter);
+        mEncodeTypeSpinner.setSelection(DEFAULT_ENCODE_INDEX, true);
 
 
         mOpenFileButton = (Button) findViewById(R.id.open_file_button);
@@ -274,6 +277,7 @@ public class DecodeActivity extends AppCompatActivity {
                 int i = CryptoFiles.getInstance().getCryptoFileIndex(fileExtension);
                 mEncodeTypeSpinner.setSelection(i);
                 mDataEdit.setText("");
+                stateHideMode = true;
             } else if (requestCode == SAVE_FOLDER_RESULT_CODE) { // Сохранение файла
                 saveFile();
             }
@@ -303,7 +307,7 @@ public class DecodeActivity extends AppCompatActivity {
         stateHiddenString = new HiddenString();
         stateHideMode = true;
         mPasswordView.setText("");
-        mEncodeTypeSpinner.setSelection(0, true);
+        mEncodeTypeSpinner.setSelection(DEFAULT_ENCODE_INDEX, true);
         mDataEdit.setText("");
         updateUi();
     }
