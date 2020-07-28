@@ -1,130 +1,141 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:gravity="center_horizontal"
-              android:orientation="vertical"
-              android:paddingBottom="@dimen/activity_vertical_margin"
-              android:paddingLeft="@dimen/activity_horizontal_margin"
-              android:paddingRight="@dimen/activity_horizontal_margin"
-              android:paddingTop="@dimen/activity_vertical_margin"
-              tools:context=".DecodeActivity">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context=".DecodeActivity">
 
 
     <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="bottom">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="bottom"
+        android:orientation="horizontal">
 
         <EditText
-                android:id="@+id/password"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="@string/prompt_password"
-                android:imeActionId="6"
-                android:imeActionLabel="@string/enter"
-                android:imeOptions="actionUnspecified"
-                android:inputType="textPassword"
-                android:maxLines="1"
-                android:singleLine="true"/>
-
-        <Spinner android:id="@+id/encode_type"
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:layout_weight="1"
-                 android:hint="@string/prompt_password"
-                 android:entries="@array/encoding_format"
-        />
-
-        <Button
-                android:id="@+id/decode_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginTop="16dp"
-                android:text="@string/decode"
-                android:textStyle="bold"
-                android:textSize="10sp"/>
-
-    </LinearLayout>
-    <LinearLayout
-            android:layout_width="match_parent"
+            android:id="@+id/password"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal" android:gravity="top">
+            android:layout_weight="1"
+            android:autofillHints=""
+            android:hint="@string/prompt_password"
+            android:imeActionId="6"
+            android:imeActionLabel="@string/enter"
+            android:imeOptions="actionUnspecified"
+            android:inputType="textPassword"
+            android:maxLines="1"
+            android:singleLine="true" />
+
+        <Spinner
+            android:id="@+id/encode_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:entries="@array/encoding_format"
+            android:hint="@string/prompt_password" />
 
         <Button
-                android:id="@+id/open_file_button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginTop="16dp"
-                android:text="@string/open"
-                android:textStyle="bold"
-                android:textSize="10sp"
-        />
+            android:id="@+id/decode_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_weight="1"
+            android:onClick="buttonDecodeClick"
+            android:text="@string/decode"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            tools:ignore="SmallSp" />
 
-        <Button
-                android:id="@+id/clear_button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginTop="16dp"
-                android:text="@string/clear"
-                android:textStyle="bold"
-                android:textSize="10sp"
-        />
-
-        <Button
-                android:id="@+id/save_button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginTop="16dp"
-                android:text="@string/save"
-                android:textStyle="bold"
-                android:textSize="10sp"
-        />
-
-        <Button
-                android:id="@+id/edit_button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginTop="16dp"
-                android:text="@string/edit"
-                android:textStyle="bold"
-                android:textSize="10sp"
-        />
     </LinearLayout>
 
     <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="top"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/open_file_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_marginTop="16dp"
+            android:layout_weight="1"
+            android:onClick="buttonOpenFileClick"
+            android:text="@string/open"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            tools:ignore="ButtonStyle,SmallSp" />
+
+        <Button
+            android:id="@+id/clear_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_weight="1"
+            android:onClick="buttonClearClick"
+            android:text="@string/clear"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            tools:ignore="ButtonStyle,SmallSp" />
+
+        <Button
+            android:id="@+id/save_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_weight="1"
+            android:onClick="buttonSaveClick"
+            android:text="@string/save"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            tools:ignore="ButtonStyle,SmallSp" />
+
+        <Button
+            android:id="@+id/edit_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_weight="1"
+            android:onClick="buttonEditClick"
+            android:text="@string/edit"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            tools:ignore="ButtonStyle,SmallSp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
         <TextView
-                android:id="@+id/file_name"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"/>
+            android:id="@+id/file_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
     </LinearLayout>
 
     <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <EditText
-                android:id="@+id/data_edit"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:imeActionLabel="@string/enter"
-                android:imeOptions="actionUnspecified"
-                android:inputType="textMultiLine"
-                android:singleLine="false"
-                android:gravity="top"/>
+            android:id="@+id/data_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autofillHints=""
+            android:gravity="top"
+            android:imeActionLabel="@string/enter"
+            android:imeOptions="actionUnspecified"
+            android:inputType="textMultiLine"
+            android:singleLine="false"
+            tools:ignore="LabelFor" />
     </ScrollView>
 
 

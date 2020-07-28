@@ -23,6 +23,7 @@ import android.view.*;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
+
 import com.andriell.cxor.crypto.HiddenString;
 import com.andriell.cxor.file.CryptoFileInterface;
 import com.andriell.cxor.file.CryptoFiles;
@@ -84,68 +85,54 @@ public class DecodeActivity extends AppCompatActivity {
 
 
         mOpenFileButton = (Button) findViewById(R.id.open_file_button);
-        mOpenFileButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openOpenFileDialog();
-                hideKeyboardFrom(mPasswordView);
-            }
-        });
-
         mDecodeButton = (Button) findViewById(R.id.decode_button);
-        mDecodeButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                decodeAction();
-                hideKeyboardFrom(mPasswordView);
-            }
-        });
-
         mClearButton = (Button) findViewById(R.id.clear_button);
-        mClearButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                clearAction();
-                hideKeyboardFrom(mPasswordView);
-            }
-        });
-
         mSaveButton = (Button) findViewById(R.id.save_button);
-        mSaveButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (fileUri == null) {
-                    openSaveNewDialog();
-                } else {
-                    saveFile();
-                }
-                hideKeyboardFrom(mPasswordView);
-                updateUi();
-            }
-        });
-
         mEditButton = (Button) findViewById(R.id.edit_button);
-        mEditButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                stateHideMode = !stateHideMode;
-                if (stateHideMode) {
-                    stateHiddenString.setData(mDataEdit.getText().toString());
-                    mDataEdit.setText(getSpannableString());
-                } else {
-                    mDataEdit.setText(stateHiddenString.getString());
-                }
-                hideKeyboardFrom(mPasswordView);
-                updateUi();
-            }
-        });
-
         mFileName = (TextView) findViewById(R.id.file_name);
-
         mDataEdit = (EditText) findViewById(R.id.data_edit);
 
         updateUi();
     }
+
+    //<editor-fold desc="button actions">
+    public void buttonOpenFileClick(View view) {
+        openOpenFileDialog();
+        hideKeyboardFrom(mPasswordView);
+    }
+
+    public void buttonDecodeClick(View view) {
+        decodeAction();
+        hideKeyboardFrom(mPasswordView);
+    }
+
+    public void buttonClearClick(View view) {
+        clearAction();
+        hideKeyboardFrom(mPasswordView);
+    }
+
+    public void buttonSaveClick(View view) {
+        if (fileUri == null) {
+            openSaveNewDialog();
+        } else {
+            saveFile();
+        }
+        hideKeyboardFrom(mPasswordView);
+        updateUi();
+    }
+
+    public void buttonEditClick(View view) {
+        stateHideMode = !stateHideMode;
+        if (stateHideMode) {
+            stateHiddenString.setData(mDataEdit.getText().toString());
+            mDataEdit.setText(getSpannableString());
+        } else {
+            mDataEdit.setText(stateHiddenString.getString());
+        }
+        hideKeyboardFrom(mPasswordView);
+        updateUi();
+    }
+    //</editor-fold>
 
     public SpannableString getSpannableString() {
         if (stateHiddenString == null) {
@@ -172,7 +159,7 @@ public class DecodeActivity extends AppCompatActivity {
                     ds.setUnderlineText(false);
                 }
             };
-            ss.setSpan(clickableSpan, groups[i], groups[i+1], Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            ss.setSpan(clickableSpan, groups[i], groups[i + 1], Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
         return ss;
@@ -286,6 +273,7 @@ public class DecodeActivity extends AppCompatActivity {
                 String fileExtension = fileUriString.substring(fileUriString.lastIndexOf('.') + 1).toLowerCase();
                 int i = CryptoFiles.getInstance().getCryptoFileIndex(fileExtension);
                 mEncodeTypeSpinner.setSelection(i);
+                mDataEdit.setText("");
             } else if (requestCode == SAVE_FOLDER_RESULT_CODE) { // Сохранение файла
                 saveFile();
             }
@@ -324,7 +312,7 @@ public class DecodeActivity extends AppCompatActivity {
         InputMethodManager imm = (InputMethodManager) this.getSystemService(Activity.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
-    
+
     private void updateUi() {
         mDecodeButton.setEnabled(fileUri != null);
         mSaveButton.setEnabled(!(fileUri != null && stateHideMode));
